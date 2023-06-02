@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+ http://www.springframework.org/schema/beans/spring-beans.xsd
+ http://www.springframework.org/schema/context
+ http://www.springframework.org/schema/context/spring-context.xsd
+ http://www.springframework.org/schema/aop
+ http://www.springframework.org/schema/aop/spring-aop.xsd
+ http://www.springframework.org/schema/mvc
+ http://www.springframework.org/schema/mvc/spring-mvc.xsd
+ http://www.springframework.org/schema/websocket
+ http://www.springframework.org/schema/websocket/spring-websocket-4.1.xsd">
+	<!-- js,css,html : 웹에서 기본 제공 되는 파일은 spring에서 제외시킴 -->
+	<mvc:default-servlet-handler /> <!-- 이거 없으면 css 적용 안 된다? -->
+	
+	<!-- @Component,@Controller,@Service,@Repository = > 객체화 -->
+	<context:component-scan
+		base-package="controller,logic,dao,aop,websocket" />
+		
+	<!-- mvc:annotation : mvc 관련 어노테이션 적용 -->
+	<mvc:annotation-driven />
+	<!-- aop관련 관련 어노테이션 적용-->
+	<aop:aspectj-autoproxy />
+
+	<!-- viewResolver : view 결정자로 jsp 페이지의 위치를 지정한다. list : /WEB-INF/view/item/list.jsp 
+		=> itemList 데이터 전달 -->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass">
+			<value>org.springframework.web.servlet.view.JstlView</value>
+		</property>
+		<property name="prefix">
+			<value>/WEB-INF/view/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+	<!-- 파일 업로드 설정 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+		p:maxUploadSize="104854600" p:maxInMemorySize="10485460" />
+	<!-- 예외처리 설정 : 예외 발생시 처리를 위한 설정 -->
+	<bean id="exceptionHandler"
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings"> <!-- 처리 가능한 예외 목록 -->
+			<!-- exception.CartEmptyException 예외 발생 => /WEB-INF/view/exection.jsp 
+				로 제어 이동 -->
+			<value>exception.CartEmptyException=exception
+				   exception.LoginException=exception
+				   exception.BoardException=exception
+			</value>
+		</property>
+	</bean>
+	<!-- message 처리 설정 : messages.properties  : 기본
+	                     1. messages_ko_KR.propertiess : 지역코드 :ko_KR
+	                     2. 1번 파일이 없는 경우
+	                          messages.properties 
+	 -->
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>messages</value>
+			</list>
+		</property>
+	</bean>
+	<!-- websocket 관련 설정 -->
+	<websocket:handlers>
+	  <websocket:mapping handler="echoHandler" path="/chatting"/>
+	 </websocket:handlers>
+	 <!-- interceptor 설정 부분 : 요청 url 실행 전 후에 처리 -->
+	 <mvc:interceptors>
+ 	   <mvc:interceptor>
+	      <mvc:mapping path="/board/write"/> <!-- AOP는 메서드의 이름이나 매개변수로 설정함 interceptor는 url을 걸쳐서 온다? -->
+	      <mvc:mapping path="/board/update"/> 
+	      <mvc:mapping path="/board/delete"/> 
+	      <bean class="interceptor.BoardInterceptor" />
+	   </mvc:interceptor>
+	 </mvc:interceptors>
+</beans>
