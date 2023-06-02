@@ -4,39 +4,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
 
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+
 import org.springframework.stereotype.Repository;
 
+import dao.mapper.SaleItemMapper;
 import logic.SaleItem;
  
 @Repository //shop service에 주입
 public class SaleItemDao {
-	private NamedParameterJdbcTemplate template;
-	private Map<String, Object> param = new HashMap<>();
-	private RowMapper<SaleItem> mapper = 
-			 new BeanPropertyRowMapper<>(SaleItem.class);
 	@Autowired
-	public void setDataSoure(DataSource dateSoure) {
-		template = new NamedParameterJdbcTemplate(dateSoure);
-	}
+//	private NamedParameterJdbcTemplate template;
+	private SqlSessionTemplate template;
+	private Map<String, Object> param = new HashMap<>(); 
+	private final Class<SaleItemMapper> cls = SaleItemMapper.class;
 	public void insert(SaleItem saleItem) {
-		   String sql = "insert into saleitem (saleid, seq,itemid,quantity) "
-				      + " values (:saleid,:seq,:itemid,:quantity)";
-		   SqlParameterSource param = new BeanPropertySqlParameterSource(saleItem);
-		   template.update(sql,param);
+		   template.getMapper(cls).insert(saleItem);
 			
 		}
 	public List<SaleItem> list(int saleid) {
 		param.clear();
 		param.put("saleid", saleid);
-		String sql ="select * from saleitem where saleid = :saleid";
-		return template.query(sql,param,mapper);
+		return template.getMapper(cls).select(param);
 	}
 }

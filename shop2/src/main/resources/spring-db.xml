@@ -14,25 +14,32 @@
  http://www.springframework.org/schema/aop/spring-aop.xsd
  http://www.springframework.org/schema/tx
  http://www.springframework.org/schema/tx/spring-tx.xsd ">
- <!-- db연결 환경설정 javax.sql.DataSource 객체 생성-->
-	<bean id="dataSource"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName">
-			<value>org.mariadb.jdbc.Driver</value>
-		</property>
-		<property name="url">
-			<value>jdbc:mariadb://localhost:3306/gdudb</value>
-		</property>
-		<property name="username">
-			<value>gdu</value>
-		</property>
-		<property name="password">
-			<value>1234</value>
-		</property>
+ <!-- db연결 객체들 생성 : Connection pool로 설정
+       Connection pool : 미리 생성 된 Connection 객체들 -->
+       
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass"><value>org.mariadb.jdbc.Driver</value></property>
+		<property name="jdbcUrl"><value>jdbc:mariadb://localhost:3306/gdudb</value>
+		</property><property name="user"><value>gdu</value></property>
+		<property name="password"><value>1234</value></property>
+		<property name="maxPoolSize"><value>20</value></property> <!--  최대 connection 객체의 갯수 -->
+		<property name="minPoolSize"><value>3</value></property> <!--  최소 connection 객체의 갯수 -->
+		<property name="initialPoolSize"><value>5</value></property> <!-- 초기 connection 객체의 갯수  -->
+		<property name="acquireIncrement"><value>5</value></property> <!-- 증가 될 connection 객체의 갯수 -->
+		
 	</bean>
 	<!-- 트렌젝션 설정 부분 -->
 	<tx:annotation-driven transaction-manager="txManager"/>
 	<bean id="teManger" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 	   <property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- mybatis 관련 설정 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	  <property name="dataSource" ref="dataSource" /> <!-- Connection 객체 -->
+	  <property name="configLocation" value="classpath:mybatis-config.xml" />
+	</bean>
+	<!-- mybatis의 session 객체 -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+	   <constructor-arg ref="sqlSessionFactory"/>
 	</bean>
 </beans>

@@ -4,67 +4,46 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-import javax.validation.Valid;
 
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import dao.mapper.ItemMapper;
 import logic.Item;
  
 @Repository //@Compoent + dao 기능(데이터베이스 연결)
 public class ItemDao {
-      private NamedParameterJdbcTemplate template;
+	 @Autowired
+      private SqlSessionTemplate template; //org.mybatis.spring.SqlSessionTemplate 객체 주입
       private Map<String,Object> param = new HashMap<>();
-      //RowMapper<item>-- : 조회된 컬럼명과 아이템 클래스의 프로퍼티가 같은 값을 아이템 객체 생성
-      private RowMapper<Item> mapper =
-    		            new BeanPropertyRowMapper<>(Item.class);
-      @Autowired //spring-db.xml에서 설정한 dataSource 객체 주입
-      public void setDataSource(DataSource dataSource) {
-    	  //dataSource : db 연결 객체.
-    	  //NamedParameterJdbcTemplate : spring 프레임워크의 jdbc 템플릿
-    	  template = new NamedParameterJdbcTemplate(dataSource);
-      }
+      private final Class<ItemMapper> cls = ItemMapper.class;
+      
       public List<Item> list() {
-    	  return template.query
-    			  ("select * from item order by id", param,mapper);
+    	  param.clear();
+    	  return template.getMapper(cls).select(param); //item 테이블의 전체 내용을 Item 객체의 목록 리턴
       }
 	public Item getItem(Integer id) {
 		param.clear();
 		param.put("id", id);
-		return template.queryForObject
-				("select * from item where id=:id",param,mapper);
+		//item 테이블의 id 값에 해당하는 전체 내용울 Item 객체의 목록으로 리턴(리턴 타입이 list여서) 한 건만 필요.
+//		return template.getMapper(cls).select(param).get(0); 
+		return template.selectOne("dao.mapper.ItemMapper.select",param); //template 으로 부터 레코드 한건만 가져와라(selectOne)
+		//dao.mapper.ItemMapper 네임스페이스에 있는 select에 있는걸 가져와라?
 	}
-	public int maxId() { //queryForObject : 레코드 한 건만 가져와라
-		//Integer.class : select 결과 자료형
-		return template.queryForObject
-				("select ifnull(max(id),0) from item" , param, Integer.class);
+	public int maxId() {
+		return template.getMapper(cls).maxId();
 	}
 	public void insert(Item item) {
-		//:id...: item 객체의 프로퍼티 값으로 설정
-		SqlParameterSource param = new BeanPropertySqlParameterSource(item);
-		String sql = 
-				"insert into item(id, name, price, description, pictureUrl)"
-				+ "values (:id,:name,:price,:description,:pictureUrl)";
-		template.update(sql, param);
+		template.getMapper(cls).insert(item);		
 	}
 	public void update(Item item) {		
-		SqlParameterSource param = new BeanPropertySqlParameterSource(item);
-		String sql = "update item set name=:name, price=:price, "
-				+ " description=:description, pictureUrl=:pictureUrl"
-				+ " where id=:id";
-		template.update(sql, param);
-		
+		template.getMapper(cls).update(item);
 	}
 	public void delete(Integer id) {
 	  param.clear();
 	  param.put("id", id);
-	  template.update("delete from item where id=:id", param);	
+	  template.getMapper(cls).delete(param);	
 	}
 	public void cartdelete(Integer index) {
 		  param.clear();
