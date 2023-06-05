@@ -14,11 +14,15 @@
 <servlet>
   <servlet-name>shop</servlet-name>
   <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class> <!-- 환경을 만들어주는 내용 -->
-  <init-param><!-- xml의 위치 지정 : classpath를 기준으로 mvx,db를..? -->
+  <init-param>
+    <param-name>contextClass</param-name> <!-- 자바 설정 파일 사용 -->
+    <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+  </init-param>
+  <init-param>
     <param-name>contextConfigLocation</param-name>
-    <param-value>
-      classpath:spring-mvc.xml
-      classpath:spring-db.xml      
+    <param-value>config.MvcConfig
+                 config.DBConfig
+                 config.WebSocketConfig
     </param-value>
   </init-param>
   <load-on-startup>1</load-on-startup> <!-- 서버를 restart 시키면 항상 1개는 올려놔 -->

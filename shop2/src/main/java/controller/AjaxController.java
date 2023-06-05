@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.Buffer;
+import java.security.Provider.Service;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -17,10 +20,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.qos.logback.classic.spi.STEUtil;
+import logic.ShopService;
 
 /* 
  *  @Controller : @Component + Controller 기능
@@ -39,7 +44,11 @@ import ch.qos.logback.classic.spi.STEUtil;
 @RestController // 뷰단 필요 없이 컨트롤러에서 직접 한다.
 @RequestMapping("ajax")
 public class AjaxController {
-	@RequestMapping("select")
+	
+	ShopService service;
+	@Autowired
+	@RequestMapping("select") //서비스 안에 내용을 쓸 수 있게
+
 	public List<String> select(String si, String gu, HttpServletRequest request) {
 		BufferedReader fr = null;
 		String path = request.getServletContext().getRealPath("/") + "file/sido.txt"; // sido.txt라는 파일을 읽어서 한 줄 씩 가져와
@@ -223,5 +232,16 @@ public class AjaxController {
 		map.put("trlist",trlist); //환율 목록
 		return map;
 //		return trlist;
+	}
+	@RequestMapping("graph1")
+	public List<Map.Entry<String, Integer>> graph1(String id) {
+		Map<String,Integer> map = Service.graph1(id); //{"홍길동"=10,"김삿갓":7,.....}
+		List<Map.Entry<String, Integer>> list = new ArrayList<>();
+		for(Map.Entry<String, Integer> m : map.entrySet() ) {
+			list.add(m);
+		}
+		Collections.sort(list,(m1,m2)->m2.getValue() - m1.getValue()); //등록 건 수 의 내림차순 정렬
+		return list;
+		
 	}
 }

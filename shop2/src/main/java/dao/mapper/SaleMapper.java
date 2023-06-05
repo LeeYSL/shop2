@@ -19,4 +19,7 @@ public interface SaleMapper {
 
     @Select("select * from sale order by saleid desc" )
 	List<Sale> select(Map<String, Object> param);
+
+    @Select("select * from sale order by saleid desc" )
+	List<Sale> list(Map<String, Object> param);
 }

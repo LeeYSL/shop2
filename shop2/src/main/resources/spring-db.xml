@@ -28,12 +28,13 @@
 		<property name="acquireIncrement"><value>5</value></property> <!-- 증가 될 connection 객체의 갯수 -->
 		
 	</bean>
-	<!-- 트렌젝션 설정 부분 -->
+	<!-- 트렌젝션 설정 부분 
+	   트렌젝션 : 하나의 업무를 원자화해서? 중간에 하나라도 오류가 나면 그 작업을 무효화-->
 	<tx:annotation-driven transaction-manager="txManager"/>
 	<bean id="teManger" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 	   <property name="dataSource" ref="dataSource" />
 	</bean>
-	<!-- mybatis 관련 설정 -->
+	<!-- mybatis 관련 설정 mapper를 쓰겠다. -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 	  <property name="dataSource" ref="dataSource" /> <!-- Connection 객체 -->
 	  <property name="configLocation" value="classpath:mybatis-config.xml" />

@@ -22,6 +22,7 @@ public class ItemDao {
       public List<Item> list() {
     	  param.clear();
     	  return template.getMapper(cls).select(param); //item 테이블의 전체 내용을 Item 객체의 목록 리턴
+    	//return template.getMapper(cls).select(null); //파라미터 null로 넣어도 상관 없다.
       }
 	public Item getItem(Integer id) {
 		param.clear();
@@ -38,7 +39,7 @@ public class ItemDao {
 		template.getMapper(cls).insert(item);		
 	}
 	public void update(Item item) {		
-		template.getMapper(cls).update(item);
+		template.getMapper(cls).update(item); //item 테이블 넘겨줘서 mapper에서 쓸 수 있게
 	}
 	public void delete(Integer id) {
 	  param.clear();
