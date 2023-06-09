@@ -201,6 +201,14 @@
 			<artifactId>c3p0</artifactId>
 			<version>0.9.5.5</version>
 		</dependency>
+		
+		<!-- lombok 관련 설정-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.28</version>
+		</dependency>
+		
 	</dependencies>
 	<build>
 			<!--pom.xml의 첫번째 줄 오류 발생 시 추가-->

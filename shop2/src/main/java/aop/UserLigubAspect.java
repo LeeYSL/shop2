@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import logic.User;
 
 @Component
-@Aspect
+// @Aspect
 
 public class UserLigubAspect {
 

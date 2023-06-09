@@ -1,9 +1,11 @@
 package logic;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -205,17 +207,39 @@ public class ShopService {
 		// list : [{writer = 홍길동, cnt= 10},{writer = 김삿갓, cnt= 7}...]
 		List<Map<String, Object>> list = boardDao.graph1(id);
 		// list => map 형태로 변경하여 controller로 리턴
+//
+//		for (int i = 1; i < list.size(); i++) {
+//			Map<String, Integer> map = new HashMap<>();
+//			map.clear();
+//			map.putAll(map);
+//		
+//			
+//			// }
+//			return map;
+//		}
+//		return null;
+		Map<String, Integer> map = new HashMap<>(); // map 객체 만들어서
+		for (Map<String, Object> m : list) {
+			String writer = (String) m.get("writer"); // writer을 가져와서 writer에 넣어?
+			long cnt = (Long) m.get("cnt"); // count(*) 형태의 데이터는 long 타입으로 전달
+			map.put(writer, (int) cnt); // {"홍길동":10,"김삿갓":7,....}
 
-		for (int i = 1; i < list.size(); i++) {
-			Map<String, Integer> map = new HashMap<>();
-			map.clear();
-			map.putAll(map);
-			
-			// }
-			return map;
 		}
-		return null;
-		
+		return map;
 	}
 
+	public Map<String, Integer> graph2(String id) {
+		//list : [{day:2023-06-07, cnt :10},...]
+		List<Map<String, Object>> list = boardDao.graph2(id);
+		//TreeMap : key 값을 기준으로 요소들을 정렬
+		//Comparator.reverseOrder() : 내림차순 정렬로 설정
+		Map<String, Integer> map = new TreeMap<>(Comparator.reverseOrder()); 
+		for (Map<String, Object> m : list) {
+			String writer = (String) m.get("day"); // writer을 가져와서 writer에 넣어?
+			long cnt = (Long) m.get("cnt"); // count(*) 형태의 데이터는 long 타입으로 전달
+			map.put(writer, (int) cnt); // {"홍길동":10,"김삿갓":7,....}
+
+		}
+		return map; //{2023-06-07:10,...}
+	}
 }

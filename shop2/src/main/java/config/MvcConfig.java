@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import interceptor.BoardInterceptor;
 
 @Configuration //xml 방식의 설정을 대신 해주는 자바 클래스
-@ComponentScan(basePackages={"controller","logic","dao","aop","websocket"}) // xml에서 context:component-scan 부분 : 객체화 하겠다.
+@ComponentScan(basePackages={"controller","logic","dao","aop","websocket","util"}) // xml에서 context:component-scan 부분 : 객체화 하겠다.
 @EnableAspectJAutoProxy //aop:aspectj-autoproxy 부분 : AOP 관련된 어노테이션을 쓰겠다.
 @EnableWebMvc //유효성 검증 사용
 public class MvcConfig implements WebMvcConfigurer {
@@ -67,7 +67,7 @@ public class MvcConfig implements WebMvcConfigurer {
 		SimpleMappingExceptionResolver ser = new SimpleMappingExceptionResolver();
 		Properties pr = new Properties();
 		pr.put("exception.CartEmptyException","exception");// 발생 예외 클래스 , 호출되는 뷰 이름
-		pr.put("exception.LoingExceptiom","exception");
+		pr.put("exception.LoginException","exception");
 		pr.put("exception.BoardException","exception");
 		ser.setExceptionMappings(pr);
 		return ser;

@@ -56,6 +56,29 @@ public interface BoardMapper {
    @Select("select writer,count(*) cnt from board where boardid=#{value} "
 		    + " group by writer order by 2 desc limit 0,7")
 	List<Map<String, Object>> graph1(String id);
+   
+    /*
+	 * date_format(날짜,패턴) : 날짜 형식의 데이터를 패턴에 맞는 문자열로 리턴 sql 함수
+	 *     day 컬럼 : 2023-06-07 형식의 문자열 컬럼
+	 *     
+	 *    [  컬럼명    컬럼값     컬럼명   컬럼값
+  	 *       {day :2023-06-07, cnt : 10},
+	 *       {day :2023-06-06, cnt : 3},
+	 *       {day :2023-06-05, cnt : 10},
+	 *       ....
+	 *     ]
+	 *     
+	 *     select 컬럼 -5
+	 *     from  테이블 -1
+	 *     where 조건   -2
+	 *     group by 컬럼  -3 (별명 사용할 수 없음.mariadb는 가능)
+	 *     having 조건  -4
+	 *     order by 컬럼 -6 (컬럼,순서,별명)
+	 */
+   @Select("select date_format(regdate,'%Y-%m-%d') day, count(*) cnt from board "
+		    + " where boardid=${value} group by date_format(regdate,'%Y-%m-%d') "
+		    + " order by day desc limit 0,7")
+List<Map<String, Object>> graph2(String id);
     
 	
 	

@@ -1,0 +1,19 @@
+lombok
+
+https://projectlombok.org/
+-> 다운로드
+ Download 1.18.28 다운 후 
+이클립스 닫기
+폴더 주소 복사 후 C:\Users\GDJ59\Downloads
+cmd 에서 주소 치고 cd lombok.jar 파일 실행
+이클립스 선택 후 install 하기
+
+pom.xml에 설정
+<dependency>
+ <groupId>org.projectlombok</groupId>
+<artifactId>lombok</artifactId>
+<version>1.18.28</version>
+		</dependency> 추가 하기
+
+setter,getter,tostring 어노테이션 사용해서 적고 lombok으로 import
+생성자는 @AllArgsConstructor
