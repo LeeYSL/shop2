@@ -98,4 +98,10 @@ public class BoardDao {
 	public List<Map<String, Object>> graph2(String id) {
 		return template.getMapper(cls).graph2(id);
 	}
+
+	public void commentinsert(Board board) {
+		template.getMapper(cls).cinsert(board);
+		
+		
+	}
 }

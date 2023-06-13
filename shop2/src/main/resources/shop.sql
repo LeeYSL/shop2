@@ -60,3 +60,26 @@ create table board (
    );
    
    select * from board;
+   
+   
+   drop table comment;
+    create table comment ( 
+     num int references board(num),
+     seq int,
+     writer varchar(30),
+     content varchar(2000),
+     regdate datetime,
+     primary key (num,seq)
+
+   );
+   # comment 테이블에 비밀번호 컬럼 추가하기
+   alter table comment add column pass varchar(20); #가장 마지막에 컬럼 추가
+   
+   # comment 테이블에 비밀번호 컬럼 제거하기
+   
+   alter table comment drop column pass
+   #comment 테이블에 writer 컬럼 다음에 비밀번호 컬럼 추가하기
+   alter table comment add column pass varchar(20) after writer
+   
+   select * from comment
+   

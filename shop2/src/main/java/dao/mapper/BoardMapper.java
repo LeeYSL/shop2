@@ -79,6 +79,10 @@ public interface BoardMapper {
 		    + " where boardid=${value} group by date_format(regdate,'%Y-%m-%d') "
 		    + " order by day desc limit 0,7")
 List<Map<String, Object>> graph2(String id);
+
+@Insert("insert into comment  (num, boardid, writer, pass, title, content, file1, regdate, readcnt, grp, grplevel, grpstep) "
+		+  " values (#{num}, #{boardid}, #{writer}, #{pass}, #{title}, #{content}, #{fileurl}, now(), 0 ,#{grp}, #{grplevel}, #{grpstep})")   
+   void cinsert(Board board);
     
 	
 	

@@ -1,6 +1,5 @@
 package controller;
 
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -11,7 +10,6 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,8 +23,8 @@ import org.springframework.web.servlet.ModelAndView;
 import exception.BoardException;
 import exception.LoginException;
 import logic.Board;
+import logic.Comment;
 import logic.ShopService;
-
 
 @Controller
 @RequestMapping("board")
@@ -150,10 +148,17 @@ public class BoardController {
 			mav.addObject("boardName", "자유게시판");
 		else if (board.getBoardid().equals("3"))
 			mav.addObject("boardName", "QNA");
+		//댓글 목록 화면에 전달
+		List<Comment> commlist = service.commentlist(num);
+		mav.addObject("commlist" , commlist);
+		//유효성 검증에 필요한 Comment 객체
+		Comment comm = new Comment();
+		comm.setNum(num);
+		mav.addObject("comment",comm);
 		return mav;
 	}
 
-	@GetMapping({ "reply", "update","delete" })
+	@GetMapping({ "reply", "update", "delete" })
 	public ModelAndView reply(Integer num, HttpSession session) {
 		ModelAndView mav = new ModelAndView();
 		String boardid = (String) session.getAttribute("boardid");
@@ -235,82 +240,112 @@ public class BoardController {
 //	}
 //}
 	@PostMapping("update")
-	public ModelAndView update(@Valid Board board, BindingResult bresult, HttpServletRequest request) { 
+	public ModelAndView update(@Valid Board board, BindingResult bresult, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView();
 		if (bresult.hasErrors()) {
 			mav.getModel().putAll(bresult.getModel());
 			return mav;
 		}
 		Board dbBoard = service.getBoard(board.getNum()); // db에 있는 비밀번호
-		if(!board.getPass().equals(dbBoard.getPass())) {
-			throw new BoardException("비밀번호를 확인하세요.", "update?num="+board.getNum());
+		if (!board.getPass().equals(dbBoard.getPass())) {
+			throw new BoardException("비밀번호를 확인하세요.", "update?num=" + board.getNum());
 		}
-		//입력 갑 정상, 비밀번호 일치
+		// 입력 갑 정상, 비밀번호 일치
 		try {
-			service.boardUpdate(board,request); //파일 업로드, db게시물 수정
-			   mav.setViewName("redirect:detail?num="+board.getNum());
-		}catch (Exception e) {
+			service.boardUpdate(board, request); // 파일 업로드, db게시물 수정
+			mav.setViewName("redirect:detail?num=" + board.getNum());
+		} catch (Exception e) {
 			e.printStackTrace();
-			throw new BoardException("게시물 수정 실패.", "update?num="+board.getNum());
+			throw new BoardException("게시물 수정 실패.", "update?num=" + board.getNum());
 		}
 		return mav;
 	}
 	/*
-	 * 1.num,pass 파라미터 저장 -> 매개변수 처리 
-	 * 2.비밀번호 검증 : db에서 num에 해당하는 게시글을 조회 db에 등록 된 비밀번호와 입력 된 비밀번호 비교
-	 *         비밀번호 오류 : error.board.password 코드 값 설정 => delete.jsp로 전달
-	 * 3.비밀번호가 일치  :db에서 num에 해당하는 게시글을 삭제
-	 *        삭제 성공 : list 페이지 이동
-	 *        삭제 실패 : delete 페이지 이동        
+	 * 1.num,pass 파라미터 저장 -> 매개변수 처리 2.비밀번호 검증 : db에서 num에 해당하는 게시글을 조회 db에 등록 된
+	 * 비밀번호와 입력 된 비밀번호 비교 비밀번호 오류 : error.board.password 코드 값 설정 => delete.jsp로 전달
+	 * 3.비밀번호가 일치 :db에서 num에 해당하는 게시글을 삭제 삭제 성공 : list 페이지 이동 삭제 실패 : delete 페이지 이동
 	 * 
 	 */
 
 	@PostMapping("delete")
 	public ModelAndView delete(Board board, BindingResult bresult) {
 		ModelAndView mav = new ModelAndView();
-		if(board.getPass() == null || board.getPass().trim().equals("")) {
-		   bresult.reject("error.required.pass");		
-		return mav;
-	}
+		if (board.getPass() == null || board.getPass().trim().equals("")) {
+			bresult.reject("error.required.pass");
+			return mav;
+		}
 		Board dbboard = service.getBoard(board.getNum());
-		if(!board.getPass().equals(dbboard.getPass())) {
+		if (!board.getPass().equals(dbboard.getPass())) {
 			bresult.reject("error.board.password");
 			return mav;
-			
+
 		}
-         try {
-        	 service.boardDelete(board.getNum());
-        	 mav.setViewName("redirect:list?boardid="+dbboard.getBoardid());
-         }catch (Exception e) {
-		       e.printStackTrace();
-		    	bresult.reject("error.board.fail");
+		try {
+			service.boardDelete(board.getNum());
+			mav.setViewName("redirect:list?boardid=" + dbboard.getBoardid());
+		} catch (Exception e) {
+			e.printStackTrace();
+			bresult.reject("error.board.fail");
 		}
-		
+
 		return mav;
 	}
+
 	@RequestMapping("imgupload")
-	public String imgupload (MultipartFile upload, String CKEditorFuncNum,
-			HttpServletRequest request, Model model) { //매개변수로 넣어주면  뷰단까지 전달해줌?
-		
+	public String imgupload(MultipartFile upload, String CKEditorFuncNum, HttpServletRequest request, Model model) { // 매개변수로
+																														// 넣어주면
+																														// 뷰단까지
+																														// 전달해줌?
+
 		/*
-		 * upload : CKEditor 모듈에서 업로드 되는 이미지의 이름.
-		 *          업로드 되는 이미지 파일의 내용. 이미지 값 
-		 * CKEditorFuncNum : CKEditor 모듈에서 파라미터로 전달되는 값 리턴헤야 되는 값. 리턴해야 되는 값
-		 * model : ModelAndView 중 Model에 해당하는 객체
-		 *          뷰에 전달할 데이터 정보 저장할 객체
-		 * return 타입이 String : view 이름 /WEB-INF/view/ckedit.jsp 
-	
+		 * upload : CKEditor 모듈에서 업로드 되는 이미지의 이름. 업로드 되는 이미지 파일의 내용. 이미지 값
+		 * CKEditorFuncNum : CKEditor 모듈에서 파라미터로 전달되는 값 리턴헤야 되는 값. 리턴해야 되는 값 model :
+		 * ModelAndView 중 Model에 해당하는 객체 뷰에 전달할 데이터 정보 저장할 객체 return 타입이 String : view
+		 * 이름 /WEB-INF/view/ckedit.jsp
+		 * 
 		 */
-		//업로드 되는 위치 폴더 값
-		//request.getServletContext().getRealPath("/") : 웹 어플리케이션의 절대 경로 값.
+		// 업로드 되는 위치 폴더 값
+		// request.getServletContext().getRealPath("/") : 웹 어플리케이션의 절대 경로 값.
 		String path = request.getServletContext().getRealPath("/") + "board/imgfile/";
-		service.uploadFileCreate(upload,path); //upload (파일의 내용),path(업로드 되는 폴더)
-		//request.getContextPath() : 프로젝트명(웹어플리케이션 서버 이름). shop1/
-		//http://localhost:8080/shop1/board/imagfile/사진.jpg
-		String fileName = request.getContextPath() //웹 어플리케이션 경로 웹 url 정보
-				          + "/board/imgfile/" + upload.getOriginalFilename();
-		model.addAttribute("fileName",fileName);
-		return "ckedit";//view 이름. /WEB-INF/view/ckedit.jsp
-		
+		service.uploadFileCreate(upload, path); // upload (파일의 내용),path(업로드 되는 폴더)
+		// request.getContextPath() : 프로젝트명(웹어플리케이션 서버 이름). shop1/
+		// http://localhost:8080/shop1/board/imagfile/사진.jpg
+		String fileName = request.getContextPath() // 웹 어플리케이션 경로 웹 url 정보
+				+ "/board/imgfile/" + upload.getOriginalFilename();
+		model.addAttribute("fileName", fileName);
+		return "ckedit";// view 이름. /WEB-INF/view/ckedit.jsp
+
+	}
+
+	@RequestMapping("comment") //댓글 등록
+	public ModelAndView comment(@Valid Comment comm, BindingResult bresult) {
+		ModelAndView mav = new ModelAndView();
+		if(bresult.hasErrors()) {
+			mav.getModel().putAll(bresult.getModel());
+			return mav;
+		}
+ 		
+		int seq = service.commmaxseq(comm.getNum());
+		comm.setSeq(++seq);
+		service.comminsert(comm);
+		mav.setViewName("redirect:detail?num="+comm.getNum()+"#comment");
+	//	return "redirect:detail?num="+comm.getNum()+"#comment";
+		return mav;
+       
+
+	}
+	@RequestMapping("commdel")
+	public String commdel(Comment comm) {
+		//현재 댓글을 아무나 삭제 가능 => 수정 필요.
+		//업무요건1 : 로그인 한 회원만 댓글 가능 => 내 글만 삭제 가능
+		//업무요건2 : 로그아웃 상태에서도 댓글 가능 => 비밀번호 추가. 비밀번호 검증 필요 
+	    Comment dbcomm = service.commSelectOne(comm.getNum(),comm.getSeq());
+		if(dbcomm.getPass() == comm.getPass()) {
+			service.commdel(comm.getNum(),comm.getSeq());
+	    
+		}else  // 비밀번호 틀린경우
+			throw new BoardException("댓글삭제 실패","detail?num=" +comm.getNum()+"#comment");
+			return "redirect:detail?num="+comm.getNum()+"#comment";
+				
 	}
 }

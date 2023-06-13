@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 import javax.validation.Valid;
+import javax.xml.transform.Templates;
 
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -89,6 +90,10 @@ public class UserDao {
 		param.put("email", user.getEmail());
 		param.put("phoneno", user.getPhoneno());
 		return template.getMapper(cls).search(param);
+	}
+
+	public List<User> phoneList(String phoneno) {
+		return template.getMapper(cls).phoneList(phoneno);
 	}
 
 }

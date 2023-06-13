@@ -9,16 +9,20 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import dao.BoardDao;
 import dao.ItemDao;
 import dao.SaleDao;
 import dao.SaleItemDao;
 import dao.UserDao;
+import dao.CommDao;
 
 @Service // @Component + Service(controller 기능과 dao 기능의 중간 역할 기능)
 public class ShopService {
@@ -32,6 +36,8 @@ public class ShopService {
 	private SaleItemDao saleItemDao;
 	@Autowired
 	private BoardDao boardDao;
+	@Autowired
+	private CommDao commDao;
 
 	public List<Item> itemList() {
 		return itemDao.list();
@@ -229,17 +235,53 @@ public class ShopService {
 	}
 
 	public Map<String, Integer> graph2(String id) {
-		//list : [{day:2023-06-07, cnt :10},...]
+		// list : [{day:2023-06-07, cnt :10},...]
 		List<Map<String, Object>> list = boardDao.graph2(id);
-		//TreeMap : key 값을 기준으로 요소들을 정렬
-		//Comparator.reverseOrder() : 내림차순 정렬로 설정
-		Map<String, Integer> map = new TreeMap<>(Comparator.reverseOrder()); 
+		// TreeMap : key 값을 기준으로 요소들을 정렬
+		// Comparator.reverseOrder() : 내림차순 정렬로 설정
+		Map<String, Integer> map = new TreeMap<>(Comparator.reverseOrder());
 		for (Map<String, Object> m : list) {
 			String writer = (String) m.get("day"); // writer을 가져와서 writer에 넣어?
 			long cnt = (Long) m.get("cnt"); // count(*) 형태의 데이터는 long 타입으로 전달
 			map.put(writer, (int) cnt); // {"홍길동":10,"김삿갓":7,....}
 
 		}
-		return map; //{2023-06-07:10,...}
+		return map; // {2023-06-07:10,...}
 	}
+
+	public List<User> getUserlist(String phoneno) {
+		return userDao.phoneList(phoneno);
+	}
+
+	
+	public void comminsert(Comment comm) {
+		commDao.insert(comm);
+	
+	
+}
+	public int commmaxseq(int num) {
+		 return commDao.maxseq(num);
+	
+}
+
+	public List<Comment> commentlist(Integer num) {
+	
+		return commDao.list(num);
+	}
+
+	public void commdel(int num, int seq) {
+		commDao.delete(num,seq);
+		 
+		
+	}
+
+
+	public Comment commSelectOne(int num, int seq) {
+		return commDao.selectOne(num, seq);
+		
+	}
+	
+	
+
+	
 }

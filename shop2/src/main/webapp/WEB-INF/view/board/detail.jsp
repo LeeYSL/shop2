@@ -56,8 +56,7 @@
 		</tr>
 		<tr>
 			<td>첨부파일</td>
-			<td>&nbsp;
-			<c:if test="${!empty board.fileurl}">
+			<td>&nbsp; <c:if test="${!empty board.fileurl}">
 					<a href="file/${board.fileurl}">${board.fileurl}</a>
 				</c:if></td>
 		</tr>
@@ -68,5 +67,63 @@
 				href="list?num=${board.num}">[게시물목록]</a></td>
 		</tr>
 	</table>
+	<span id="comment"></span>
+	<form:form modelAttribute="comment" action="comment" method="post"
+		name="commForm">
+		<form:hidden path="num" value="${board.num}" />
+		<div class="w3-row">
+			<div class="w3-col s2 w3-center">
+				<p>
+					<form:input path="writer" class="w3-input w3-boarder" placeholder="작성자"/>
+					<font color="red"><form:errors path="writer" /></font>
+				</p>
+			</div>
+			<div class="w3-col s2 w3-center">
+				<p>
+					<form:password path="pass" class="w3-input w3-boarder" placeholder="비밀번호"/>
+					<font color="red"><form:errors path="pass" /></font>
+				</p>
+			</div>
+			<div class="w3-col s7 w3-center">
+				<p>
+					<form:input path="content" class="w3-input w3-board"  placeholder="댓글내용"/>
+					<font color="red"><form:errors path="content" /></font>
+				</p>
+			</div>
+			<div class="w3-col s1 w3-center">
+				<p>
+					<button type="submit" class="w3-btn w3-board" >댓글등록</button>
+				</p>
+			</div>
+		</div>
+	</form:form>
+	<div class="w3-container">
+		<table class="w3-table-all">
+			<c:forEach var="c" items="${commlist}" varStatus="stat">
+				<tr>
+					<td>${c.seq}</td>
+					<td>${c.writer}</td>
+					<td>${c.content}</td>
+					<td><fmt:formatDate value="${c.regdate}"
+							pattern="yyyy-MM-dd HH:mm:ss" /></td>
+							<td class="w3-right">
+							<form action="commdel" method="post" name="commdel${stat.index}">
+							 <input type="hidden" name="num" value="${param.num}">
+							 <input type="hidden" name="seq" value="${c.seq}">
+							 <input type="password" name="pass" placeholder="비밀번호">
+							 <a class="w3-btn w3-board w3-blue" href="javascript:document.commdel${stat.index}.submit()">삭제</a>
+							 
+							</form></td>
+				</tr>
+			</c:forEach>
+		</table>
+	</div>
+	<script type="text/javascript">
+	function comment_insert() {
+	  let data = {num:document.commForm.num.value,
+			       writer:document.commForm.writer.value,}
+	}
+	
+	</script>
 </body>
 </html>
