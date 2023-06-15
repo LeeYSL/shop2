@@ -18,6 +18,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,7 +37,10 @@ import logic.ShopService;
  *     @ResponseBody 어노테이션은 메서드에 설정함
  */
 @RestController
+
+
 @RequestMapping("ajax")
+
 public class AjaxController {
 	@Autowired
 	ShopService service;
@@ -177,8 +181,8 @@ public class AjaxController {
 		sb.append("</table>");
 		return sb.toString();
 	}
-
 	@RequestMapping("exchange2")
+
 	public Map<String, Object> exchange2() { // json 데이터로 전송
 //	public List<List<String>> exchange2() {
 		Document doc = null;
@@ -211,6 +215,7 @@ public class AjaxController {
 		Map<String, Object> map = new HashMap<>();
 		map.put("exdate", exdate); // 일자
 		map.put("trlist", trlist); // 환율 목록
+		
 		return map;
 	}
 

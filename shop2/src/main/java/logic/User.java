@@ -20,6 +20,7 @@ import lombok.ToString;
 public class User {
 	@Size(min=3,max=10,message="아이디는 3자 이상 10자 이하로 입력하세요.")
 	private String userid;
+	private String channel; //소셜 로그인으로 인한 추가
 	@Size(min=3,max=10,message="비밀번호는 3자 이상 10자 이하로 입력하세요.")
 	private String password;
 	@NotEmpty(message="사용자 이름은 필수 입니다.")
@@ -27,6 +28,7 @@ public class User {
 	private String phoneno;
 	private String postcode;	
 	private String address;
+	
 	
 	@NotEmpty(message="email을 입력하세요.") // 문자열인경우
 	@Email(message="email 형식으로 입력하세요.")

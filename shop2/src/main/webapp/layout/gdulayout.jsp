@@ -96,7 +96,12 @@ html, body, h1, h2, h3, h4, h5 {
     <c:if test='${url == "board" && boardid=="3"}'>w3-blue</c:if>">
 				<i class="fa fa-eye fa-fw"></i>&nbsp; QnA
 			</a>
-		</div>
+			<hr>
+			<a href="${path}/naver/search"
+			class="w3-bar-item w3-button w3-padding <c:if test='${url== "naver"}'>w3-blue</c:if>">
+			<i class="fa fa-eye fa-fw"></i>&nbsp; 네이버 검색</a>
+		</div><br><br>
+		
 		<%-- 수출입은행 환율 정보 표시 영역 --%>
 		<div style="width: 100%;">
 			<div id="exchange" style="width: 70%; margin: 6px;"></div>

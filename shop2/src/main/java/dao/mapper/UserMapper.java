@@ -12,9 +12,9 @@ import org.apache.ibatis.annotations.Update;
 import logic.User;
 
 public interface UserMapper {
-	@Insert("insert into usersecurity (userid,username,password,"
+	@Insert("insert into usersecurity (userid, channel,username,password,"
 			+ " birthday,phoneno,postcode,address,email) values " 
-			+ " (#{userid},#{username},#{password}, "
+			+ " (#{userid},#{channel},#{username},#{password}, "
 			+ " #{birthday},#{phoneno},#{postcode},#{address},#{email})")
 	void insert(User user);
 	
