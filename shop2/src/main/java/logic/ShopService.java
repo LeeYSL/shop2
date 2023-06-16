@@ -1,6 +1,7 @@
 package logic;
 
 import java.io.File;
+import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import dao.ItemDao;
 import dao.SaleDao;
 import dao.SaleItemDao;
 import dao.UserDao;
+import util.CipherUtil;
 import dao.CommDao;
 import dao.ExDao;
 
@@ -41,6 +43,8 @@ public class ShopService {
 	private CommDao commDao;
 	@Autowired
 	private ExDao exDao;
+	@Autowired
+	private CipherUtil util;
 
 	public List<Item> itemList() {
 		return itemDao.list();
@@ -288,8 +292,17 @@ public class ShopService {
         exDao.insert(ex);
 		
 	}
-	
-	
+
+	public String emailDecrypt(User loginUser) {
+		try {
+			String key = util.makehash(loginUser.getUserid(),"SHA-256");
+			return loginUser.getEmail();
+		}catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 
 	
 }
